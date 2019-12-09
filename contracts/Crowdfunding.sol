@@ -33,16 +33,18 @@ contract Crowdfunding {
     }
 
     function invest() public payable {
-        revert("Not yet implemented");
+        investments[msg.sender] += msg.value;
     }
 
     function claimFunds() public {
-        // TODO Your code here
-        revert("Not yet implemented");
+        require(timer.getTime() >= endTimestamp);
+        require(address(this).balance >= goal);
+        owner.transfer(address(this).balance);
     }
 
     function refund() public {
-        // TODO Your code here
-        revert("Not yet implemented");
+        require(timer.getTime() >= endTimestamp);
+        require(address(this).balance < goal);
+        owner.transfer(investments[msg.sender]);
     }
 }
