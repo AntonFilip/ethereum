@@ -7,7 +7,7 @@
     "ganache-cli": "^6.7.0"
   },
   "scripts": {
-    "start": "ganache-cli -l 10000000000npm 00 -g 10 --allowUnlimitedContractSize",
-    "test": "truffle test"
+    "start": "node_modules/.bin/ganache-cli -l 1000000000000 -g 10 --allowUnlimitedContractSize",
+    "test": "node_modules/.bin/truffle test"
   }
 }
