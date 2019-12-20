@@ -27,7 +27,34 @@ contract EnglishAuction is Auction {
     }
 
     function bid() public payable {
-        // TODO Your code here
-        revert("Not yet implemented");
+        bool isFinished = checkAndFinishAuctionIfAuctionIsOver();
+        require(!isFinished, "Auction is over, no more bids!");
+        require(msg.value >= initialPrice, "Initial price not met!");
+        require((msg.value - highestBid) >= minimumPriceIncrement, "Minimum price increment rule not satisfied!");
+        highestBidderAddress.transfer(highestBid);
+        highestBidderAddress = msg.sender;
+        highestBid = msg.value;
+        lastBidTimestamp = time();
+    }
+
+    function getHighestBidder() public returns (address) {
+        checkAndFinishAuctionIfAuctionIsOver();
+        if (outcome == Outcome.NOT_FINISHED || outcome == Outcome.NOT_SUCCESSFUL) {
+            return address(0);
+        }
+        return highestBidderAddress;
+    }
+
+    function checkAndFinishAuctionIfAuctionIsOver() internal returns (bool) {
+        uint timeNow = time();
+        if ((timeNow - lastBidTimestamp) >= biddingPeriod) {
+            if (highestBid >= initialPrice) {
+                finishAuction(Outcome.SUCCESSFUL, highestBidderAddress);
+            } else {
+                finishAuction(Outcome.NOT_SUCCESSFUL, address(0));
+            }
+            return true;
+        }
+        return false;
     }
 }

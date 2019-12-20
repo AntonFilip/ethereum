@@ -33,18 +33,25 @@ contract Crowdfunding {
     }
 
     function invest() public payable {
+        require(timer.getTime() < endTimestamp);
         investments[msg.sender] += msg.value;
     }
 
     function claimFunds() public {
         require(timer.getTime() >= endTimestamp);
         require(address(this).balance >= goal);
-        owner.transfer(address(this).balance);
+        if (msg.sender == owner) {
+            owner.transfer(address(this).balance);
+        } else {
+            revert("Only owner can claim funds");
+        }
     }
 
     function refund() public {
         require(timer.getTime() >= endTimestamp);
         require(address(this).balance < goal);
-        owner.transfer(investments[msg.sender]);
+        uint amount = investments[msg.sender];
+        investments[msg.sender] = 0;
+        msg.sender.transfer(amount);
     }
 }

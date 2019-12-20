@@ -77,8 +77,11 @@ contract Auction {
     /// the transfer of funds to the seller. If the judge is specified,
     /// then only the judge or highest bidder can transfer the funds to the seller.
     function settle() public {
-        // TODO Your code here
-        revert("Not yet implemented");
+        require(outcome == Outcome.SUCCESSFUL);
+        if (judgeAddress != address(0)) {
+            require(msg.sender == judgeAddress || msg.sender == highestBidderAddress);
+        }
+        sellerAddress.transfer(address(this).balance);
     }
 
     // Returns the money to the highest bidder only in the case of unsuccessful
@@ -87,8 +90,12 @@ contract Auction {
     // specified then anybody should be able to request the transfer of funds
     // to the highest bidder (if such exists).
     function refund() public {
-        // TODO Your code here
-        revert("Not yet implemented");
+        require(outcome == Outcome.NOT_SUCCESSFUL);
+        require(highestBidderAddress != address(0));
+        if (judgeAddress != address(0)) {
+            require(msg.sender == judgeAddress || msg.sender == sellerAddress);
+        }
+        highestBidderAddress.transfer(address(this).balance);
     }
 
     // This is provided for testing

@@ -39,7 +39,17 @@ contract DutchAuction is Auction {
     /// a price higher than the current price.
     /// This method should only be called while the auction is active.
     function bid() public payable {
-        // TODO Your code here
-        revert("Not yet implemented");
+        uint timeNow = time();
+        uint minimalPrice = initialPrice - (auctionEnd - auctionStart) * priceDecrement;
+        uint currentPrice = initialPrice - (timeNow - auctionStart) * priceDecrement;
+        require(timeNow >= auctionStart && timeNow < auctionEnd);
+        require(currentPrice > minimalPrice);
+        require(highestBidderAddress == address(0));
+        if (msg.value >= currentPrice) {
+            msg.sender.transfer(msg.value - currentPrice);
+            finishAuction(Outcome.SUCCESSFUL, msg.sender);
+        } else {
+            revert("Bid is too low!");
+        }
     }
 }
